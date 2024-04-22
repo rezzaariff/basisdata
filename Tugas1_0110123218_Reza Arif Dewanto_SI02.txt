@@ -1,0 +1,578 @@
+1. Buatlah database baru dengan nama: dbpegawai
+MariaDB [(none)]> create database dbpegawai;
+Query OK, 1 row affected (0.002 sec)
+
+MariaDB [(none)]>
+
+2. Masuk ke dbpegawai dengan perintah USE 
+MariaDB [(none)]> use dbpegawai;
+Database changed
+MariaDB [dbpegawai]>
+
+3. Buatlah tabel baru dengan nama: divisi, dengan kolom-kolom sbb: id int primary key auto_increment
+nama varchar(30) dengan contraint: wajib diisi dan tidak boleh sama
+MariaDB [dbpegawai]> create table divisi(
+    -> id int primary key auto_increment,
+    -> nama varchar(30) not null unique);
+Query OK, 0 rows affected (0.039 sec)
+
+4. Tampilkan deskripsi tabel divisi 
+ desc divisi;
++-------+-------------+------+-----+---------+----------------+
+| Field | Type        | Null | Key | Default | Extra          |
++-------+-------------+------+-----+---------+----------------+
+| id    | int(11)     | NO   | PRI | NULL    | auto_increment |
+| nama  | varchar(30) | NO   | UNI | NULL    |                |
++-------+-------------+------+-----+---------+----------------+
+2 rows in set (0.025 sec)
+
+5. Buatlah tabel baru dengan nama: jabatan, dengan kolom-kolom sbb: id int primary key auto_increment
+nama varchar(30) dengan contraint: wajib diisi dan tidak boleh sama
+MariaDB [dbpegawai]> create table jabatan(
+    -> id int primary key auto_increment,
+    -> nama varchar(30) not null unique);
+Query OK, 0 rows affected (0.040 sec)
+
+6. Tampilkan deskripsi tabel jabatan
+MariaDB [dbpegawai]> desc jabatan;
++-------+-------------+------+-----+---------+----------------+
+| Field | Type        | Null | Key | Default | Extra          |
++-------+-------------+------+-----+---------+----------------+
+| id    | int(11)     | NO   | PRI | NULL    | auto_increment |
+| nama  | varchar(30) | NO   | UNI | NULL    |                |
++-------+-------------+------+-----+---------+----------------+
+2 rows in set (0.023 sec)
+
+7. Buatlah tabel baru dengan nama: pegawai, dengan kolom-kolom sbb:
+id int primary key auto_increment
+nip char dengan constraint: wajib diisi, tidak boleh sama & 5 karakter
+nama varchar dengan constraint: wajib diisi dan maksimal 30 karakter
+gender enum('Laki-Laki','Perempuan') dengan constraint: wajib diisi
+tmp_lahir varchar dengan constraint: wajib diisi dan maksimal 30 karakter
+tgl_lahir date dengan constraint: wajib diisi
+iddivisi int sebagai foreign key, tidak boleh kosong, merujuk ke tabel divisi ke field id
+idjabatan int sebagai foreign key, tidak boleh kosong, merujuk ke tabel jabatan ke field id
+alamat text
+MariaDB [dbpegawai]> create table pegawai (
+    ->     id int primary key auro_increment,
+    ->     nip char(5) not null unique,
+    ->     nama varchar(30) not null,
+    ->     gender enum('Laki-Laki','Perempuan') NOT NULL,
+    ->     tmp_lahir varchar(30) not null,
+    ->     tgl_lahir date not null,
+    ->     iddivisi int not null,
+    ->     idjabatan int not null,
+    ->     alamat text,
+    ->     foreign key (iddivisi) references divisi(id),
+    ->     foreign key (idjabatan) references jabatan(id)
+    -> );
+Query OK, 0 rows affected (0.041 sec)
+
+8. Tampilkan deskripsi tabel pegawai
+MariaDB [dbpegawai]> desc pegawai;
++-----------+-------------------------------+------+-----+---------+----------------+
+| Field     | Type                          | Null | Key | Default | Extra          |
++-----------+-------------------------------+------+-----+---------+----------------+
+| id        | int(11)                       | NO   | PRI | NULL    | auto_increment |
+| nip       | char(5)                       | NO   | UNI | NULL    |                |
+| nama      | varchar(30)                   | NO   |     | NULL    |                |
+| gender    | enum('Laki-Laki','Perempuan') | NO   |     | NULL    |                |
+| tmp_lahir | varchar(30)                   | NO   |     | NULL    |                |
+| tgl_lahir | date                          | NO   |     | NULL    |                |
+| iddivisi  | int(11)                       | NO   | MUL | NULL    |                |
+| idjabatan | int(11)                       | NO   | MUL | NULL    |                |
+| alamat    | text                          | YES  |     | NULL    |                |
++-----------+-------------------------------+------+-----+---------+----------------+
+9 rows in set (0.025 sec)
+
+9.Tampilkan tabel-tabel yang ada di dbpegawai 
+MariaDB [dbpegawai]> show tables;
++---------------------+
+| Tables_in_dbpegawai |
++---------------------+
+| divisi              |
+| jabatan             |
+| pegawai             |
++---------------------+
+3 rows in set (0.001 sec)
+
+10. Input data divisi => SDM, Keuangan, Marketing, IT 
+insert into divisi(nama) values('SDM'), ('Keuangan'), ('Marketing'), ('IT');
+Query OK, 4 rows affected (0.081 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+11. Tampilkan seluruh data divisi
+MariaDB [dbpegawai]> select * from divisi;
++----+-----------+
+| id | nama      |
++----+-----------+
+|  4 | IT        |
+|  2 | Keuangan  |
+|  3 | Marketing |
+|  1 | SDM       |
++----+-----------+
+4 rows in set (0.001 sec)
+
+12. Input data jabatan => Direktur, Manajer, Asisten Manajer, Staff 
+insert into jabatan(nama) values('Direktur'), ('Manajer'), ('Asisten Manajer'), ('Staff');
+Query OK, 4 rows affected (0.003 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+13. Tampilkan seluruh data jabatan
+MariaDB [dbpegawai]> select * from jabatan;
++----+-----------------+
+| id | nama            |
++----+-----------------+
+|  3 | Asisten Manajer |
+|  1 | Direktur        |
+|  2 | Manajer         |
+|  4 | Staff           |
++----+-----------------+
+4 rows in set (0.001 sec)
+
+14. Input 20 orang pegawai ( 1 divisi 5 orang, untuk gender dan jabatan diacak)
+
+MariaDB [dbpegawai]> insert into pegawai (nip, nama, gender, tmp_lahir, tgl_lahir, iddivisi, idjabatan, alamat) values
+    ->   ('19850101A', 'Luffy', 'Laki-Laki', 'Jakarta', '1996-11-11', 1, 1, 'Jalan Belitung 12'),
+    ->   ('19860202B', 'Zoro', 'Laki-Laki', 'Bandung', '1992-03-08', 1, 2, 'Jalan Sumatra 34'),
+    ->   ('19870303C', 'Nami', 'Perempuan', 'Surabaya', '1995-06-15', 1, 3, 'Jalan Jawa 56'),
+    ->   ('19880404D', 'Sanji', 'Laki-Laki', 'Yogyakarta', '1993-09-20', 1, 4, 'Jalan Bali 78'),
+    ->   ('19890505E', 'Robin', 'Perempuan', 'Semarang', '1994-12-25', 1, 1, 'Jalan Sulawesi 90'),
+    ->   ('19900606F', 'Jinbei', 'Laki-Laki', 'Makassar', '1996-03-03', 4, 2, 'Jalan Kalimantan 11'),
+    ->   ('19910707G', 'Franky', 'Laki-Laki', 'Palembang', '1993-07-10', 4, 3, 'Jalan Lampung 22'),
+    ->   ('19920808H', 'Usopp', 'Laki-Laki', 'Medan', '1995-11-17', 4, 4, 'Jalan Sumatera Utara 33'),
+    ->   ('19930909I', 'Brook', 'Laki-Laki', 'Bali', '1994-02-05', 4, 4, 'Jalan Nusa Tenggara 44'),
+    ->   ('19941010J', 'Chooper', 'Laki-Laki', 'Papua', '1996-08-22', 4, 1, 'Jalan Maluku 55'),
+    ->   ('19951111K', 'Trafalgar Law', 'Laki-Laki', 'Kalimantan Timur', '1993-10-12', 3, 2, 'Jalan Sulawesi Tenggara 66'),
+    ->   ('19961212L', 'Bepo', 'Laki-Laki', 'Sulawesi Selatan', '1995-06-08', 3, 3, 'Jalan Sulawesi Tengah 77'),
+    ->   ('19970113M', 'Captain Kid', 'Laki-Laki', 'Sulawesi Tenggara', '1994-01-28', 3, 4, 'Jalan Gorontalo 88'),
+    ->   ('19980214N', 'Killer', 'Laki-Laki', 'Maluku', '1996-03-11', 3, 1, 'Jalan Papua 99'),
+    ->   ('19990315O', 'Shanks', 'Laki-Laki', 'Papua Barat', '1993-12-15', 3, 2, 'Jalan Jambi 110'),
+    ->   ('21234416P', 'Rayleigh', 'Laki-Laki', 'Riau', '1995-07-25', 2, 3, 'Jalan Riau'),
+    ->   ('21245517Q', 'Gol D Roger', 'Laki-Laki', 'Cianjur', '1996-08-15', 2, 4, 'Jalan Surga'),
+    ->   ('21254517R', 'Scooper Gaban', 'Laki-Laki', 'Citayem', '1992-09-25', 2, 1, 'Jalan Jalan'),
+    ->   ('23895718S', 'Marshal D Teach', 'Laki-Laki', 'Gondangdia', '1985-06-29', 2, 2, 'Jalan Neraka'),
+    ->   ('89065819T', 'Kaido', 'Laki-Laki', 'Manggarai', '1978-07-14', 2, 3, 'Jalan Kaki');
+Query OK, 20 rows affected, 20 warnings (0.008 sec)
+
+MariaDB [dbpegawai]>
+
+15. Tampilkan seluruh data pegawai 
+MariaDB [dbpegawai]> select * from pegawai;
++-----+-------+-----------------+-----------+-------------------+------------+----------+-----------+----------------------------+
+| id  | nip   | nama            | gender    | tmp_lahir         | tgl_lahir  | iddivisi | idjabatan | alamat                     |
++-----+-------+-----------------+-----------+-------------------+------------+----------+-----------+----------------------------+
+|  63 | 20000 | Kaido           | Laki-Laki | Manggarai         | 1978-07-14 |        2 |         3 | Jalan Kaki                 |
+|  83 | 19850 | Luffy           | Laki-Laki | Jakarta           | 1996-11-11 |        1 |         1 | Jalan Belitung 12          |
+|  84 | 19860 | Zoro            | Laki-Laki | Bandung           | 1992-03-08 |        1 |         2 | Jalan Sumatra 34           |
+|  85 | 19870 | Nami            | Perempuan | Surabaya          | 1995-06-15 |        1 |         3 | Jalan Jawa 56              |
+|  86 | 19880 | Sanji           | Laki-Laki | Yogyakarta        | 1993-09-20 |        1 |         4 | Jalan Bali 78              |
+|  87 | 19890 | Robin           | Perempuan | Semarang          | 1994-12-25 |        1 |         1 | Jalan Sulawesi 90          |
+|  88 | 19900 | Jinbei          | Laki-Laki | Makassar          | 1996-03-03 |        4 |         2 | Jalan Kalimantan 11        |
+|  89 | 19910 | Franky          | Laki-Laki | Palembang         | 1993-07-10 |        4 |         3 | Jalan Lampung 22           |
+|  90 | 19920 | Usopp           | Laki-Laki | Medan             | 1995-11-17 |        4 |         4 | Jalan Sumatera Utara 33    |
+|  91 | 19930 | Brook           | Laki-Laki | Bali              | 1994-02-05 |        4 |         4 | Jalan Nusa Tenggara 44     |
+|  92 | 19941 | Chooper         | Laki-Laki | Papua             | 1996-08-22 |        4 |         1 | Jalan Maluku 55            |
+|  93 | 19951 | Trafalgar Law   | Laki-Laki | Kalimantan Timur  | 1993-10-12 |        3 |         2 | Jalan Sulawesi Tenggara 66 |
+|  94 | 19961 | Bepo            | Laki-Laki | Sulawesi Selatan  | 1995-06-08 |        3 |         3 | Jalan Sulawesi Tengah 77   |
+|  95 | 19970 | Captain Kid     | Laki-Laki | Sulawesi Tenggara | 1994-01-28 |        3 |         4 | Jalan Gorontalo 88         |
+|  96 | 19980 | Killer          | Laki-Laki | Maluku            | 1996-03-11 |        3 |         1 | Jalan Papua 99             |
+|  97 | 19990 | Shanks          | Laki-Laki | Papua Barat       | 1993-12-15 |        3 |         2 | Jalan Jambi 110            |
+|  98 | 21234 | Rayleigh        | Laki-Laki | Riau              | 1995-07-25 |        2 |         3 | Jalan Riau                 |
+|  99 | 21245 | Gol D Roger     | Laki-Laki | Cianjur           | 1996-08-15 |        2 |         4 | Jalan Surga                |
+| 100 | 21254 | Scooper Gaban   | Laki-Laki | Citayem           | 1992-09-25 |        2 |         1 | Jalan Jalan                |
+| 101 | 23895 | Marshal D Teach | Laki-Laki | Gondangdia        | 1985-06-29 |        2 |         2 | Jalan Neraka               |
++-----+-------+-----------------+-----------+-------------------+------------+----------+-----------+----------------------------+
+20 rows in set (0.001 sec)
+
+16. Ubah data 5 orang pegawai (dengan ketentuan ubah 3 kolom(bebas))
+MariaDB [dbpegawai]> update pegawai set
+    -> nip = 11111, tmp_lahir = 'East Blue' , alamat = 'Jalanan'
+    -> where id = 83;
+Query OK, 1 row affected (0.003 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+MariaDB [dbpegawai]> update pegawai set
+    -> nip = 22222, tmp_lahir = 'Wano' , alamat = 'Perut Gunung'
+    -> where id = 63;
+Query OK, 1 row affected (0.003 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+MariaDB [dbpegawai]> update pegawai set
+    -> nip = 33333, tmp_lahir = 'Wano' , alamat = 'Thousand Sunny'
+    -> where id = 84;
+Query OK, 1 row affected (0.003 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+MariaDB [dbpegawai]> update pegawai set
+    -> nip = 44444, tmp_lahir = 'Ciawi' , alamat = 'Sunny Go'
+    -> where id = 85;
+Query OK, 1 row affected (0.003 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+MariaDB [dbpegawai]> update pegawai set
+    -> nip = 55555, tmp_lahir = 'Germa 66' , alamat = 'Restoran Laut'
+    -> where id = 86;
+Query OK, 1 row affected (0.004 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+17. Hapus 2 orang pegawai pegawai terakhir
+MariaDB [dbpegawai]> delete from pegawai where id = 101;
+Query OK, 1 row affected (0.003 sec)
+
+MariaDB [dbpegawai]> delete from pegawai where id = 100;
+Query OK, 1 row affected (0.004 sec)
+
+18. Gunakan alter tabel pada tabel pegawai untuk menambahkan kolom baru berat_badan dengan
+tipe data float wajib diisi, lalu input berat badan semua pegawai secara acak
+MariaDB [dbpegawai]> alter table pegawai
+    -> add column berat_badan float not null;
+Query OK, 0 rows affected (0.010 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+MariaDB [dbpegawai]> update pegawai
+    -> set berat_badan = ROUND(RAND() * 100 + 20, 2);
+Query OK, 18 rows affected (0.004 sec)
+Rows matched: 18  Changed: 18  Warnings: 0
+
+19. Gunakan alter tabel pada tabel pegawai untuk menambahkan kolom baru umur dengan tipe data
+integer wajib diisi, lalu input umur semua pegawai secara acak
+MariaDB [dbpegawai]> alter table pegawai
+    -> add column umur int not null;
+Query OK, 0 rows affected (0.006 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+MariaDB [dbpegawai]> update pegawai
+    -> set umur = floor(20 + rand() * (60 - 20 + 1));
+Query OK, 3 rows affected (0.003 sec)
+Rows matched: 3  Changed: 3  Warnings: 0
+
+20. Gunakan alter tabel pada tabel pegawai untuk mengubah nama kolom gender menjadi
+jenis_kelamin
+MariaDB [dbpegawai]> alter table pegawai
+    -> change column gender jenis_kelamin enum('Laki-Laki', 'Perempuan') not null;
+Query OK, 0 rows affected (0.006 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+21. Tampilkan kolom2 tertentu di tabel pegawai (nip,nama,jenis_kelamin,alamat)
+MariaDB [dbpegawai]> select nip,nama,jenis_kelamin,alamat from pegawai;
++-------+---------------+---------------+----------------------------+
+| nip   | nama          | jenis_kelamin | alamat                     |
++-------+---------------+---------------+----------------------------+
+| 22222 | Kaido         | Laki-Laki     | Perut Gunung               |
+| 11111 | Luffy         | Laki-Laki     | Jalanan                    |
+| 33333 | Zoro          | Laki-Laki     | Thousand Sunny             |
+| 44444 | Nami          | Perempuan     | Sunny Go                   |
+| 55555 | Sanji         | Laki-Laki     | Restoran Laut              |
+| 19890 | Robin         | Perempuan     | Jalan Sulawesi 90          |
+| 19900 | Jinbei        | Laki-Laki     | Jalan Kalimantan 11        |
+| 19910 | Franky        | Laki-Laki     | Jalan Lampung 22           |
+| 19920 | Usopp         | Laki-Laki     | Jalan Sumatera Utara 33    |
+| 19930 | Brook         | Laki-Laki     | Jalan Nusa Tenggara 44     |
+| 19941 | Chooper       | Laki-Laki     | Jalan Maluku 55            |
+| 19951 | Trafalgar Law | Laki-Laki     | Jalan Sulawesi Tenggara 66 |
+| 19961 | Bepo          | Laki-Laki     | Jalan Sulawesi Tengah 77   |
+| 19970 | Captain Kid   | Laki-Laki     | Jalan Gorontalo 88         |
+| 19980 | Killer        | Laki-Laki     | Jalan Papua 99             |
+| 19990 | Shanks        | Laki-Laki     | Jalan Jambi 110            |
+| 21234 | Rayleigh      | Laki-Laki     | Jalan Riau                 |
+| 21245 | Gol D Roger   | Laki-Laki     | Jalan Surga                |
++-------+---------------+---------------+----------------------------+
+18 rows in set (0.001 sec)
+
+22. Tampilkan baris2 tertentu di tabel pegawai (yang gendernya laki2 saja)
+MariaDB [dbpegawai]> select * from pegawai where jenis_kelamin = 'Laki-Laki';
++----+-------+---------------+---------------+-------------------+------------+----------+-----------+----------------------------+------+-------------+
+| id | nip   | nama          | jenis_kelamin | tmp_lahir         | tgl_lahir  | iddivisi | idjabatan | alamat                     | umur | berat_badan |
++----+-------+---------------+---------------+-------------------+------------+----------+-----------+----------------------------+------+-------------+
+| 63 | 22222 | Kaido         | Laki-Laki     | Wano              | 1978-07-14 |        2 |         3 | Perut Gunung               |   35 |       96.13 |
+| 83 | 11111 | Luffy         | Laki-Laki     | East Blue         | 1996-11-11 |        1 |         1 | Jalanan                    |   25 |       62.49 |
+| 84 | 33333 | Zoro          | Laki-Laki     | Wano              | 1992-03-08 |        1 |         2 | Thousand Sunny             |   42 |      104.06 |
+| 86 | 55555 | Sanji         | Laki-Laki     | Germa 66          | 1993-09-20 |        1 |         4 | Restoran Laut              |   26 |       31.99 |
+| 88 | 19900 | Jinbei        | Laki-Laki     | Makassar          | 1996-03-03 |        4 |         2 | Jalan Kalimantan 11        |   58 |       91.29 |
+| 89 | 19910 | Franky        | Laki-Laki     | Palembang         | 1993-07-10 |        4 |         3 | Jalan Lampung 22           |   47 |       32.11 |
+| 90 | 19920 | Usopp         | Laki-Laki     | Medan             | 1995-11-17 |        4 |         4 | Jalan Sumatera Utara 33    |   39 |       66.65 |
+| 91 | 19930 | Brook         | Laki-Laki     | Bali              | 1994-02-05 |        4 |         4 | Jalan Nusa Tenggara 44     |   37 |      116.91 |
+| 92 | 19941 | Chooper       | Laki-Laki     | Papua             | 1996-08-22 |        4 |         1 | Jalan Maluku 55            |   49 |       64.64 |
+| 93 | 19951 | Trafalgar Law | Laki-Laki     | Kalimantan Timur  | 1993-10-12 |        3 |         2 | Jalan Sulawesi Tenggara 66 |   30 |       52.43 |
+| 94 | 19961 | Bepo          | Laki-Laki     | Sulawesi Selatan  | 1995-06-08 |        3 |         3 | Jalan Sulawesi Tengah 77   |   26 |       48.25 |
+| 95 | 19970 | Captain Kid   | Laki-Laki     | Sulawesi Tenggara | 1994-01-28 |        3 |         4 | Jalan Gorontalo 88         |   20 |       63.95 |
+| 96 | 19980 | Killer        | Laki-Laki     | Maluku            | 1996-03-11 |        3 |         1 | Jalan Papua 99             |   44 |       55.03 |
+| 97 | 19990 | Shanks        | Laki-Laki     | Papua Barat       | 1993-12-15 |        3 |         2 | Jalan Jambi 110            |   57 |       63.26 |
+| 98 | 21234 | Rayleigh      | Laki-Laki     | Riau              | 1995-07-25 |        2 |         3 | Jalan Riau                 |   54 |       31.24 |
+| 99 | 21245 | Gol D Roger   | Laki-Laki     | Cianjur           | 1996-08-15 |        2 |         4 | Jalan Surga                |   38 |       46.39 |
++----+-------+---------------+---------------+-------------------+------------+----------+-----------+----------------------------+------+-------------+
+16 rows in set (0.001 sec)
+
+23. Tampilkan baris2 tertentu di tabel pegawai (yang bekerja di divisi IT dan gendernya perempuan)
+MariaDB [dbpegawai]> SELECT * FROM pegawai
+    -> WHERE iddivisi = (SELECT id FROM divisi WHERE nama = 'IT')
+    -> AND jenis_kelamin = 'Perempuan';
+Empty set (0.001 sec)
+
+24. Tampilkan data pegawai yang umurnya di atas 30 tahun dan lahirnya di kota jakarta dengan klausa WHERE, AND 
+MariaDB [dbpegawai]> select * from pegawai where umur > 30 and tmp_lahir = 'Jakarta' ;
+Empty set (0.001 sec)
+
+25. Tampilkan data pegawai yang bekerja pada divisi marketing, berumur lebih dari 30 tahun dan berjenis kelamin perempuan dengan klausa WHERE, AND
+MariaDB [dbpegawai]> select * from pegawai where umur > 30 and jenis_kelamin = 'Perempuan';
++----+-------+-------+---------------+-----------+------------+----------+-----------+-------------------+------+-------------+
+| id | nip   | nama  | jenis_kelamin | tmp_lahir | tgl_lahir  | iddivisi | idjabatan | alamat            | umur | berat_badan |
++----+-------+-------+---------------+-----------+------------+----------+-----------+-------------------+------+-------------+
+| 85 | 44444 | Nami  | Perempuan     | Ciawi     | 1995-06-15 |        1 |         3 | Sunny Go          |   34 |      112.84 |
+| 87 | 19890 | Robin | Perempuan     | Semarang  | 1994-12-25 |        1 |         1 | Jalan Sulawesi 90 |   47 |      101.45 |
++----+-------+-------+---------------+-----------+------------+----------+-----------+-------------------+------+-------------+
+2 rows in set (0.001 sec)
+
+26. Tampilkan data pegawai dengan klausa key (nip)
+MariaDB [dbpegawai]> select * from pegawai
+    -> where nip = '11111';
++----+-------+-------+---------------+-----------+------------+----------+-----------+---------+------+-------------+
+| id | nip   | nama  | jenis_kelamin | tmp_lahir | tgl_lahir  | iddivisi | idjabatan | alamat  | umur | berat_badan |
++----+-------+-------+---------------+-----------+------------+----------+-----------+---------+------+-------------+
+| 83 | 11111 | Luffy | Laki-Laki     | East Blue | 1996-11-11 |        1 |         1 | Jalanan |   25 |       62.49 |
++----+-------+-------+---------------+-----------+------------+----------+-----------+---------+------+-------------+
+1 row in set (0.001 sec)
+
+27. Tampilkan data pegawai dengan klausa non key (gender) 
+MariaDB [dbpegawai]> select * from pegawai
+    -> where jenis_kelamin = 'Perempuan';
++----+-------+-------+---------------+-----------+------------+----------+-----------+-------------------+------+-------------+
+| id | nip   | nama  | jenis_kelamin | tmp_lahir | tgl_lahir  | iddivisi | idjabatan | alamat            | umur | berat_badan |
++----+-------+-------+---------------+-----------+------------+----------+-----------+-------------------+------+-------------+
+| 85 | 44444 | Nami  | Perempuan     | Ciawi     | 1995-06-15 |        1 |         3 | Sunny Go          |   34 |      112.84 |
+| 87 | 19890 | Robin | Perempuan     | Semarang  | 1994-12-25 |        1 |         1 | Jalan Sulawesi 90 |   47 |      101.45 |
++----+-------+-------+---------------+-----------+------------+----------+-----------+-------------------+------+-------------+
+2 rows in set (0.001 sec)
+
+28. Tampilkan data pegawai dengan klausa in (menyebutkan beberapa nip)
+MariaDB [dbpegawai]> select * from pegawai
+    -> where nip in ('11111', '22222', '33333', '44444');
++----+-------+-------+---------------+-----------+------------+----------+-----------+----------------+------+-------------+
+| id | nip   | nama  | jenis_kelamin | tmp_lahir | tgl_lahir  | iddivisi | idjabatan | alamat         | umur | berat_badan |
++----+-------+-------+---------------+-----------+------------+----------+-----------+----------------+------+-------------+
+| 63 | 22222 | Kaido | Laki-Laki     | Wano      | 1978-07-14 |        2 |         3 | Perut Gunung   |   35 |       96.13 |
+| 83 | 11111 | Luffy | Laki-Laki     | East Blue | 1996-11-11 |        1 |         1 | Jalanan        |   25 |       62.49 |
+| 84 | 33333 | Zoro  | Laki-Laki     | Wano      | 1992-03-08 |        1 |         2 | Thousand Sunny |   42 |      104.06 |
+| 85 | 44444 | Nami  | Perempuan     | Ciawi     | 1995-06-15 |        1 |         3 | Sunny Go       |   34 |      112.84 |
++----+-------+-------+---------------+-----------+------------+----------+-----------+----------------+------+-------------+
+4 rows in set (0.001 sec)
+
+29. Tampilkan data pegawai dengan klausa not in (menyebutkan beberapa tempat lahir) 
+MariaDB [dbpegawai]> select * from pegawai
+    -> where tmp_lahir not in ('Wano', 'East Blue', 'Ciawi');
++----+-------+---------------+---------------+-------------------+------------+----------+-----------+----------------------------+------+-------------+
+| id | nip   | nama          | jenis_kelamin | tmp_lahir         | tgl_lahir  | iddivisi | idjabatan | alamat                     | umur | berat_badan |
++----+-------+---------------+---------------+-------------------+------------+----------+-----------+----------------------------+------+-------------+
+| 86 | 55555 | Sanji         | Laki-Laki     | Germa 66          | 1993-09-20 |        1 |         4 | Restoran Laut              |   26 |       31.99 |
+| 87 | 19890 | Robin         | Perempuan     | Semarang          | 1994-12-25 |        1 |         1 | Jalan Sulawesi 90          |   47 |      101.45 |
+| 88 | 19900 | Jinbei        | Laki-Laki     | Makassar          | 1996-03-03 |        4 |         2 | Jalan Kalimantan 11        |   58 |       91.29 |
+| 89 | 19910 | Franky        | Laki-Laki     | Palembang         | 1993-07-10 |        4 |         3 | Jalan Lampung 22           |   47 |       32.11 |
+| 90 | 19920 | Usopp         | Laki-Laki     | Medan             | 1995-11-17 |        4 |         4 | Jalan Sumatera Utara 33    |   39 |       66.65 |
+| 91 | 19930 | Brook         | Laki-Laki     | Bali              | 1994-02-05 |        4 |         4 | Jalan Nusa Tenggara 44     |   37 |      116.91 |
+| 92 | 19941 | Chooper       | Laki-Laki     | Papua             | 1996-08-22 |        4 |         1 | Jalan Maluku 55            |   49 |       64.64 |
+| 93 | 19951 | Trafalgar Law | Laki-Laki     | Kalimantan Timur  | 1993-10-12 |        3 |         2 | Jalan Sulawesi Tenggara 66 |   30 |       52.43 |
+| 94 | 19961 | Bepo          | Laki-Laki     | Sulawesi Selatan  | 1995-06-08 |        3 |         3 | Jalan Sulawesi Tengah 77   |   26 |       48.25 |
+| 95 | 19970 | Captain Kid   | Laki-Laki     | Sulawesi Tenggara | 1994-01-28 |        3 |         4 | Jalan Gorontalo 88         |   20 |       63.95 |
+| 96 | 19980 | Killer        | Laki-Laki     | Maluku            | 1996-03-11 |        3 |         1 | Jalan Papua 99             |   44 |       55.03 |
+| 97 | 19990 | Shanks        | Laki-Laki     | Papua Barat       | 1993-12-15 |        3 |         2 | Jalan Jambi 110            |   57 |       63.26 |
+| 98 | 21234 | Rayleigh      | Laki-Laki     | Riau              | 1995-07-25 |        2 |         3 | Jalan Riau                 |   54 |       31.24 |
+| 99 | 21245 | Gol D Roger   | Laki-Laki     | Cianjur           | 1996-08-15 |        2 |         4 | Jalan Surga                |   38 |       46.39 |
++----+-------+---------------+---------------+-------------------+------------+----------+-----------+----------------------------+------+-------------+
+14 rows in set (0.001 sec)
+
+30. Tampilkan data pegawai berdasarkan nama secara ascending
+MariaDB [dbpegawai]> select * from pegawai
+    -> order by nama asc;
++----+-------+---------------+---------------+-------------------+------------+----------+-----------+----------------------------+------+-------------+
+| id | nip   | nama          | jenis_kelamin | tmp_lahir         | tgl_lahir  | iddivisi | idjabatan | alamat                     | umur | berat_badan |
++----+-------+---------------+---------------+-------------------+------------+----------+-----------+----------------------------+------+-------------+
+| 94 | 19961 | Bepo          | Laki-Laki     | Sulawesi Selatan  | 1995-06-08 |        3 |         3 | Jalan Sulawesi Tengah 77   |   26 |       48.25 |
+| 91 | 19930 | Brook         | Laki-Laki     | Bali              | 1994-02-05 |        4 |         4 | Jalan Nusa Tenggara 44     |   37 |      116.91 |
+| 95 | 19970 | Captain Kid   | Laki-Laki     | Sulawesi Tenggara | 1994-01-28 |        3 |         4 | Jalan Gorontalo 88         |   20 |       63.95 |
+| 92 | 19941 | Chooper       | Laki-Laki     | Papua             | 1996-08-22 |        4 |         1 | Jalan Maluku 55            |   49 |       64.64 |
+| 89 | 19910 | Franky        | Laki-Laki     | Palembang         | 1993-07-10 |        4 |         3 | Jalan Lampung 22           |   47 |       32.11 |
+| 99 | 21245 | Gol D Roger   | Laki-Laki     | Cianjur           | 1996-08-15 |        2 |         4 | Jalan Surga                |   38 |       46.39 |
+| 88 | 19900 | Jinbei        | Laki-Laki     | Makassar          | 1996-03-03 |        4 |         2 | Jalan Kalimantan 11        |   58 |       91.29 |
+| 63 | 22222 | Kaido         | Laki-Laki     | Wano              | 1978-07-14 |        2 |         3 | Perut Gunung               |   35 |       96.13 |
+| 96 | 19980 | Killer        | Laki-Laki     | Maluku            | 1996-03-11 |        3 |         1 | Jalan Papua 99             |   44 |       55.03 |
+| 83 | 11111 | Luffy         | Laki-Laki     | East Blue         | 1996-11-11 |        1 |         1 | Jalanan                    |   25 |       62.49 |
+| 85 | 44444 | Nami          | Perempuan     | Ciawi             | 1995-06-15 |        1 |         3 | Sunny Go                   |   34 |      112.84 |
+| 98 | 21234 | Rayleigh      | Laki-Laki     | Riau              | 1995-07-25 |        2 |         3 | Jalan Riau                 |   54 |       31.24 |
+| 87 | 19890 | Robin         | Perempuan     | Semarang          | 1994-12-25 |        1 |         1 | Jalan Sulawesi 90          |   47 |      101.45 |
+| 86 | 55555 | Sanji         | Laki-Laki     | Germa 66          | 1993-09-20 |        1 |         4 | Restoran Laut              |   26 |       31.99 |
+| 97 | 19990 | Shanks        | Laki-Laki     | Papua Barat       | 1993-12-15 |        3 |         2 | Jalan Jambi 110            |   57 |       63.26 |
+| 93 | 19951 | Trafalgar Law | Laki-Laki     | Kalimantan Timur  | 1993-10-12 |        3 |         2 | Jalan Sulawesi Tenggara 66 |   30 |       52.43 |
+| 90 | 19920 | Usopp         | Laki-Laki     | Medan             | 1995-11-17 |        4 |         4 | Jalan Sumatera Utara 33    |   39 |       66.65 |
+| 84 | 33333 | Zoro          | Laki-Laki     | Wano              | 1992-03-08 |        1 |         2 | Thousand Sunny             |   42 |      104.06 |
++----+-------+---------------+---------------+-------------------+------------+----------+-----------+----------------------------+------+-------------+
+18 rows in set (0.001 sec)
+
+31. Tampilkan data pegawai dari yang berat badan paling gemuk ke paling kurus 
+MariaDB [dbpegawai]> select * from pegawai
+    -> order by berat_badan desc;
++----+-------+---------------+---------------+-------------------+------------+----------+-----------+----------------------------+------+-------------+
+| id | nip   | nama          | jenis_kelamin | tmp_lahir         | tgl_lahir  | iddivisi | idjabatan | alamat                     | umur | berat_badan |
++----+-------+---------------+---------------+-------------------+------------+----------+-----------+----------------------------+------+-------------+
+| 91 | 19930 | Brook         | Laki-Laki     | Bali              | 1994-02-05 |        4 |         4 | Jalan Nusa Tenggara 44     |   37 |      116.91 |
+| 85 | 44444 | Nami          | Perempuan     | Ciawi             | 1995-06-15 |        1 |         3 | Sunny Go                   |   34 |      112.84 |
+| 84 | 33333 | Zoro          | Laki-Laki     | Wano              | 1992-03-08 |        1 |         2 | Thousand Sunny             |   42 |      104.06 |
+| 87 | 19890 | Robin         | Perempuan     | Semarang          | 1994-12-25 |        1 |         1 | Jalan Sulawesi 90          |   47 |      101.45 |
+| 63 | 22222 | Kaido         | Laki-Laki     | Wano              | 1978-07-14 |        2 |         3 | Perut Gunung               |   35 |       96.13 |
+| 88 | 19900 | Jinbei        | Laki-Laki     | Makassar          | 1996-03-03 |        4 |         2 | Jalan Kalimantan 11        |   58 |       91.29 |
+| 90 | 19920 | Usopp         | Laki-Laki     | Medan             | 1995-11-17 |        4 |         4 | Jalan Sumatera Utara 33    |   39 |       66.65 |
+| 92 | 19941 | Chooper       | Laki-Laki     | Papua             | 1996-08-22 |        4 |         1 | Jalan Maluku 55            |   49 |       64.64 |
+| 95 | 19970 | Captain Kid   | Laki-Laki     | Sulawesi Tenggara | 1994-01-28 |        3 |         4 | Jalan Gorontalo 88         |   20 |       63.95 |
+| 97 | 19990 | Shanks        | Laki-Laki     | Papua Barat       | 1993-12-15 |        3 |         2 | Jalan Jambi 110            |   57 |       63.26 |
+| 83 | 11111 | Luffy         | Laki-Laki     | East Blue         | 1996-11-11 |        1 |         1 | Jalanan                    |   25 |       62.49 |
+| 96 | 19980 | Killer        | Laki-Laki     | Maluku            | 1996-03-11 |        3 |         1 | Jalan Papua 99             |   44 |       55.03 |
+| 93 | 19951 | Trafalgar Law | Laki-Laki     | Kalimantan Timur  | 1993-10-12 |        3 |         2 | Jalan Sulawesi Tenggara 66 |   30 |       52.43 |
+| 94 | 19961 | Bepo          | Laki-Laki     | Sulawesi Selatan  | 1995-06-08 |        3 |         3 | Jalan Sulawesi Tengah 77   |   26 |       48.25 |
+| 99 | 21245 | Gol D Roger   | Laki-Laki     | Cianjur           | 1996-08-15 |        2 |         4 | Jalan Surga                |   38 |       46.39 |
+| 89 | 19910 | Franky        | Laki-Laki     | Palembang         | 1993-07-10 |        4 |         3 | Jalan Lampung 22           |   47 |       32.11 |
+| 86 | 55555 | Sanji         | Laki-Laki     | Germa 66          | 1993-09-20 |        1 |         4 | Restoran Laut              |   26 |       31.99 |
+| 98 | 21234 | Rayleigh      | Laki-Laki     | Riau              | 1995-07-25 |        2 |         3 | Jalan Riau                 |   54 |       31.24 |
++----+-------+---------------+---------------+-------------------+------------+----------+-----------+----------------------------+------+-------------+
+18 rows in set (0.001 sec)
+
+32. Tampilkan data 5 pegawai teratas gunakan klausa limit
+MariaDB [dbpegawai]> select * from pegawai
+    -> order by berat_badan desc
+    -> limit 5;
++----+-------+-------+---------------+-----------+------------+----------+-----------+------------------------+------+-------------+
+| id | nip   | nama  | jenis_kelamin | tmp_lahir | tgl_lahir  | iddivisi | idjabatan | alamat                 | umur | berat_badan |
++----+-------+-------+---------------+-----------+------------+----------+-----------+------------------------+------+-------------+
+| 91 | 19930 | Brook | Laki-Laki     | Bali      | 1994-02-05 |        4 |         4 | Jalan Nusa Tenggara 44 |   37 |      116.91 |
+| 85 | 44444 | Nami  | Perempuan     | Ciawi     | 1995-06-15 |        1 |         3 | Sunny Go               |   34 |      112.84 |
+| 84 | 33333 | Zoro  | Laki-Laki     | Wano      | 1992-03-08 |        1 |         2 | Thousand Sunny         |   42 |      104.06 |
+| 87 | 19890 | Robin | Perempuan     | Semarang  | 1994-12-25 |        1 |         1 | Jalan Sulawesi 90      |   47 |      101.45 |
+| 63 | 22222 | Kaido | Laki-Laki     | Wano      | 1978-07-14 |        2 |         3 | Perut Gunung           |   35 |       96.13 |
++----+-------+-------+---------------+-----------+------------+----------+-----------+------------------------+------+-------------+
+5 rows in set (0.001 sec)
+
+33. Tampilkan data 5 pegawai terbawah gunakan klausa limit offset
+MariaDB [dbpegawai]> select * from pegawai limit 5 offset 0;
++----+-------+-------+---------------+-----------+------------+----------+-----------+----------------+------+-------------+
+| id | nip   | nama  | jenis_kelamin | tmp_lahir | tgl_lahir  | iddivisi | idjabatan | alamat         | umur | berat_badan |
++----+-------+-------+---------------+-----------+------------+----------+-----------+----------------+------+-------------+
+| 63 | 22222 | Kaido | Laki-Laki     | Wano      | 1978-07-14 |        2 |         3 | Perut Gunung   |   35 |       96.13 |
+| 83 | 11111 | Luffy | Laki-Laki     | East Blue | 1996-11-11 |        1 |         1 | Jalanan        |   25 |       62.49 |
+| 84 | 33333 | Zoro  | Laki-Laki     | Wano      | 1992-03-08 |        1 |         2 | Thousand Sunny |   42 |      104.06 |
+| 85 | 44444 | Nami  | Perempuan     | Ciawi     | 1995-06-15 |        1 |         3 | Sunny Go       |   34 |      112.84 |
+| 86 | 55555 | Sanji | Laki-Laki     | Germa 66  | 1993-09-20 |        1 |         4 | Restoran Laut  |   26 |       31.99 |
++----+-------+-------+---------------+-----------+------------+----------+-----------+----------------+------+-------------+
+5 rows in set (0.001 sec)
+
+34. Tampilkan jumlah pegawai gunakan fungsi aggregrat count
+MariaDB [dbpegawai]> select count(*) as jumlah_pegawai from pegawai;
++----------------+
+| jumlah_pegawai |
++----------------+
+|             18 |
++----------------+
+1 row in set (0.000 sec)
+
+35. Tampilkan nip,nama pegawai, umur yg paling tua gunakan fungsi aggregrat max (kombinasi
+dengan sub query
+MariaDB [dbpegawai]> select nip, nama, umur from pegawai where umur = (select max(umur) from pegawai);
++-------+--------+------+
+| nip   | nama   | umur |
++-------+--------+------+
+| 19900 | Jinbei |   58 |
++-------+--------+------+
+1 row in set (0.001 sec)
+
+36. Tampilkan nip,nama pegawai, berat_badan yg paling kurus gunakan fungsi aggregrat min
+(kombinasi dengan sub query) 
+MariaDB [dbpegawai]> select nip, nama, berat_badan from pegawai where berat_badan = (select min(berat_badan) from pegawai);
++-------+----------+-------------+
+| nip   | nama     | berat_badan |
++-------+----------+-------------+
+| 21234 | Rayleigh |       31.24 |
++-------+----------+-------------+
+1 row in set (0.000 sec)
+
+37. Tampilkan data rata2 umur pegawai gunakan fungsi aggregrat avg
+MariaDB [dbpegawai]> select avg(umur) as umur_rata2 from pegawai;
++------------+
+| umur_rata2 |
++------------+
+|    39.3333 |
++------------+
+1 row in set (0.001 sec)
+
+38. Tampilkan jumlah data pegawai yang laki2 dan berumur lebih dari 40 tahun dan berjabatan
+Manajer, gunakan fungsi aggregrat count dan klausa AND
+MariaDB [dbpegawai]> select count(*) from pegawai where jenis_kelamin = 'Laki-Laki' and umur > 40 and idjabatan = 2;
++----------+
+| count(*) |
++----------+
+|        3 |
++----------+
+1 row in set (0.001 sec)
+
+39. Tampilkan jumlah data pegawai yang perempuan dan berumur kurang dari 40 tahun dan
+berjabatan Staff, gunakan fungsi aggregrat count dan klausa AND 
+MariaDB [dbpegawai]> select count(*) from pegawai where jenis_kelamin = 'Perempuan' and umur < 40 and idjabatan = 4;
++----------+
+| count(*) |
++----------+
+|        0 |
++----------+
+1 row in set (0.000 sec)
+
+40. Tampilkan jumlah data pegawai yang perempuan gunakan fungsi aggregrat count
+MariaDB [dbpegawai]> select count(*) from pegawai where jenis_kelamin = 'Perempuan';
++----------+
+| count(*) |
++----------+
+|        2 |
++----------+
+1 row in set (0.000 sec)
+
+41. Tampilkan jumlah pegawai yang bekerja di divisi SDM dengan fungsi aggregrat sum dan klausa WHERE 
+MariaDB [dbpegawai]> SELECT SUM(CASE WHEN iddivisi = 1 THEN 1 ELSE 0 END) AS jumlah_pegawai
+    -> FROM pegawai
+    -> WHERE iddivisi = 1;
++----------------+
+| jumlah_pegawai |
++----------------+
+|              5 |
++----------------+
+1 row in set (0.000 sec)
+
+42. Tampilkan jumlah pegawai berdasarkan divisi masing2 menggunakan fungsi aggregrat count dan klausa group by
+MariaDB [dbpegawai]> select iddivisi, count(*) as jumlah_pegawai from pegawai group by iddivisi;
++----------+----------------+
+| iddivisi | jumlah_pegawai |
++----------+----------------+
+|        1 |              5 |
+|        2 |              3 |
+|        3 |              5 |
+|        4 |              5 |
++----------+----------------+
+4 rows in set (0.000 sec)
+
+43. Tampilkan data jumlah pegawai berdasarkan gender, yg jumlah minimal 10 orang (gunakan group by dan having)
+MariaDB [dbpegawai]> select jenis_kelamin, count(*) as jumlah_pegawai from pegawai
+    -> group by jenis_kelamin having count(*) >= 10;
++---------------+----------------+
+| jenis_kelamin | jumlah_pegawai |
++---------------+----------------+
+| Laki-Laki     |             16 |
++---------------+----------------+
+1 row in set (0.002 sec)
+
+44. Cari data pegawai yang berawalan kata Muhammad
+MariaDB [dbpegawai]> select * from pegawai where nama like 'Muhammad%';
+Empty set (0.001 sec)
+
+45. Cari data pegawai yang berakhiran kata Santoso
+MariaDB [dbpegawai]> select * from pegawai where nama like '%Santoso';
+Empty set (0.001 sec)
+
+46. Cari data pegawai yang mengadung kata Asep
+MariaDB [dbpegawai]> select * from pegawai where nama like '%Asep%';
+Empty set (0.001 sec)
+
+47. Cari data pegawai yang huruf kelimanya huruf S 
+MariaDB [dbpegawai]> select * from pegawai where substring(nama, 5, 1) = 'S';
+Empty set (0.001 sec)
