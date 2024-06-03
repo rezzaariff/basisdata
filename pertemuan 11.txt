@@ -1,0 +1,174 @@
+Microsoft Windows [Version 10.0.22631.3593]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\Users\HP ELITBOOK>cd \
+
+C:\>cd C:\xampp\mysql\bin
+
+C:\xampp\mysql\bin>mysql -u root -p
+Enter password:
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 8
+Server version: 10.4.28-MariaDB mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> use dbpos1
+Database changed
+MariaDB [dbpos1]> delimiter $$
+MariaDB [dbpos1]> create procedure showProduk()
+    -> begin
+    -> select kode, nama, harga_jual from produk;
+    -> end
+    -> $$
+Query OK, 0 rows affected (0.039 sec)
+
+MariaDB [dbpos1]> delimiter $$
+MariaDB [dbpos1]> delimiter ;
+MariaDB [dbpos1]> show tables;
++------------------------------+
+| Tables_in_dbpos1             |
++------------------------------+
+| jenis_produk                 |
+| kartu                        |
+| pelanggan                    |
+| pembayaran                   |
+| pembelian                    |
+| pembelian_produk_vendor      |
+| pesanan                      |
+| pesanan_items                |
+| pesanan_pelanggan_kartu      |
+| produk                       |
+| produk_jenis_kartu_pesananan |
+| vendor                       |
++------------------------------+
+12 rows in set (0.003 sec)
+
+MariaDB [dbpos1]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| db_dbsi02          |
+| dbclothes          |
+| dbpegawai          |
+| dbpos              |
+| dbpos1             |
+| dbpos_si02         |
+| dbtoko3            |
+| dbuser             |
+| dbweather          |
+| information_schema |
+| movie_app          |
+| mysql              |
+| performance_schema |
+| phpmyadmin         |
+| test               |
++--------------------+
+15 rows in set (0.058 sec)
+
+MariaDB [dbpos1]> END
+    -> $$
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'END
+$$' at line 1
+MariaDB [dbpos1]> call showProduk()
+    -> ;
++------+------------------+------------+
+| kode | nama             | harga_jual |
++------+------------------+------------+
+| TV01 | Televisi 21 inch |    5241600 |
+| TV02 | Televisi 40 inch |    7737600 |
+| K001 | Kulkas 2 pintu   |    4867200 |
+| M001 | Meja Makan       |     660000 |
+| TK01 | Teh Kotak        |       4235 |
+| PC01 | PC Desktop HP    |    9600000 |
+| TB01 | Teh Botol        |       3025 |
+| AC01 | Notebook Acer    |   10800000 |
+| LN01 | Notebook Lenovo  |   12000000 |
++------+------------------+------------+
+9 rows in set (0.030 sec)
+
+Query OK, 0 rows affected (0.040 sec)
+
+MariaDB [dbpos1]> delimiter $$
+MariaDB [dbpos1]> create procedure showProdukElektronik(idprod int)
+    -> begin
+    -> select * from produk where jenis_produk_id = idprod;
+    -> end $$
+Query OK, 0 rows affected (0.007 sec)
+
+MariaDB [dbpos1]> delimiter ;
+MariaDB [dbpos1]> delimiter $$
+MariaDB [dbpos1]> create procedure kurangi_stok(IN id INT, jumlah_pesanan INT)
+    -> begin
+    -> update produk SET stok = stok - jumlah_pesanan where id = id;
+    -> end $$
+Query OK, 0 rows affected (0.007 sec)
+
+MariaDB [dbpos1]> delimiter ;
+MariaDB [dbpos1]> call showProduk();
++------+------------------+------------+
+| kode | nama             | harga_jual |
++------+------------------+------------+
+| TV01 | Televisi 21 inch |    5241600 |
+| TV02 | Televisi 40 inch |    7737600 |
+| K001 | Kulkas 2 pintu   |    4867200 |
+| M001 | Meja Makan       |     660000 |
+| TK01 | Teh Kotak        |       4235 |
+| PC01 | PC Desktop HP    |    9600000 |
+| TB01 | Teh Botol        |       3025 |
+| AC01 | Notebook Acer    |   10800000 |
+| LN01 | Notebook Lenovo  |   12000000 |
++------+------------------+------------+
+9 rows in set (0.001 sec)
+
+Query OK, 0 rows affected (0.012 sec)
+
+MariaDB [dbpos1]> select id, kode, nama, stok from produk;
++----+------+------------------+------+
+| id | kode | nama             | stok |
++----+------+------------------+------+
+|  1 | TV01 | Televisi 21 inch |   12 |
+|  2 | TV02 | Televisi 40 inch |   11 |
+|  3 | K001 | Kulkas 2 pintu   |    3 |
+|  4 | M001 | Meja Makan       |    9 |
+|  5 | TK01 | Teh Kotak        |    3 |
+|  6 | PC01 | PC Desktop HP    |    6 |
+|  7 | TB01 | Teh Botol        |   50 |
+|  8 | AC01 | Notebook Acer    |    4 |
+|  9 | LN01 | Notebook Lenovo  |    6 |
++----+------+------------------+------+
+9 rows in set (0.001 sec)
+
+MariaDB [dbpos1]> drop procedure kurangi_stok;
+Query OK, 0 rows affected (0.006 sec)
+
+MariaDB [dbpos1]> delimiter $$
+MariaDB [dbpos1]> create procedure kurangi_stok(IN produk_id INT, IN jumlah_pesanan INT)
+    -> begin
+    -> declare stok_produk INT;
+    -> set stok_produk = stok_produk - jumlah_pesanan;
+    -> update produk set stok = stok_produk where id = produk_id;
+    -> end $$
+Query OK, 0 rows affected (0.007 sec)
+
+MariaDB [dbpos1]> delimiter ;
+MariaDB [dbpos1]> select id, nama, stok from produk;
++----+------------------+------+
+| id | nama             | stok |
++----+------------------+------+
+|  1 | Televisi 21 inch |   12 |
+|  2 | Televisi 40 inch |   11 |
+|  3 | Kulkas 2 pintu   |    3 |
+|  4 | Meja Makan       |    9 |
+|  5 | Teh Kotak        |    3 |
+|  6 | PC Desktop HP    |    6 |
+|  7 | Teh Botol        |   50 |
+|  8 | Notebook Acer    |    4 |
+|  9 | Notebook Lenovo  |    6 |
++----+------------------+------+
+9 rows in set (0.001 sec)
+
+MariaDB [dbpos1]>
